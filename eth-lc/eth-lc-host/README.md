@@ -2,6 +2,17 @@
 
 Host-side support for `eth-lc-core`.
 
+## Quick start
+
+```console
+cd eth-lc
+just verify-checkpoint                    # check a new mainnet instance's config and checkpoint
+just verify-checkpoint --network sepolia  # the same on Sepolia
+just vectors                              # re-record the mainnet and Sepolia test data
+```
+
+## Modules
+
 | Module or binary | Use |
 |---|---|
 | `forks` | Light-client containers per fork layout (Capella, Deneb, Electra and Fulu, Gloas), from Beacon API JSON or SSZ, converted to core types, and the Gloas upgrade functions of `specs/gloas/light-client/fork.md`. A Capella or Deneb layout becomes the core variant of the fork at its own slot; a Gloas layout becomes a Gloas header at any slot from Capella on. |

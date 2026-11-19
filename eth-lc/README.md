@@ -10,6 +10,21 @@ Ethereum light-client crates for RISC Zero guests, written from the specs:
 Spec sources: consensus-specs tag `v1.7.0-beta.4`; Yellow Paper (App. B, App. D,
 4.3, 4.4.1); EIP-1186, EIP-2718, EIP-2930, EIP-1559, EIP-4844, EIP-7702.
 
+## Quick start
+
+```console
+cd eth-lc
+just test            # unit tests, cross-checks, recorded mainnet and Sepolia chains, synthetic cases
+just spec-tests      # consensus-specs light-client vectors (downloads about 1.4 GB once)
+just eth-tests       # ethereum/tests TrieTests
+just lc-test         # integration tests with output
+just live-test       # a live Sepolia Gloas checkpoint (network)
+just consumer-check  # README guest example as a git dependency, built and run under the LEZ executor
+just vectors         # re-record the mainnet and Sepolia chain-dirs and the evidence
+```
+
+Conformance and recorded test data: [`eth-lc-core`](eth-lc-core/README.md#soundness).
+
 ## Versioning
 
 Releases are git tags `eth-lc-vX.Y.Z` on this repository. While at 0.x, a
@@ -221,18 +236,3 @@ of its own chain only. A consumer binds to an instance by its id: it reads
 that instance's header accounts, or accepts a statement only when its
 `instance` is that id. Fact IDs leave out the instance, so a fact proven
 through an instance and through its replacement has one ID.
-
-## Tests
-
-```console
-cd eth-lc
-just test            # unit tests, cross-checks, recorded mainnet and Sepolia chains, synthetic cases
-just spec-tests      # consensus-specs light-client vectors (downloads about 1.4 GB once)
-just eth-tests       # ethereum/tests TrieTests
-just lc-test         # integration tests with output
-just live-test       # a live Sepolia Gloas checkpoint (network)
-just consumer-check  # README guest example as a git dependency, built and run under the LEZ executor
-just vectors         # re-record the mainnet and Sepolia chain-dirs and the evidence
-```
-
-Conformance and recorded test data: [`eth-lc-core`](eth-lc-core/README.md#soundness).

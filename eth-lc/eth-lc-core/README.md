@@ -9,6 +9,18 @@ anchor.
 The crate is `no_std` + `alloc` with `default-features = false`. Guests use
 that form.
 
+## Quick start
+
+```toml
+[dependencies]
+eth-lc-core = { git = "ssh://git@github.com/hu55a1n1/logos-explorations", tag = "eth-lc-v0.1.0", default-features = false }
+```
+
+A guest anchors a store with `initialize_store`, advances it with `apply_update`,
+and checks claims with `claim::check_claim`. A full LEZ actor is in
+[Guest example](#guest-example-lez-v04-actor). Run the tests from the workspace:
+`cd eth-lc && just test`.
+
 ## API overview
 
 | Item | Use |
