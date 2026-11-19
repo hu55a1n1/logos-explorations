@@ -187,6 +187,36 @@ See the workspace README: a stalled instance stays readable, and recovery is a
 new instance anchored at a chain config and a checkpoint that
 `eth_lc_host::checkpoint::verify_new_checkpoint` accepts.
 
+## Soundness
+
+The workspace suites (`just test`, `just spec-tests`, `just eth-tests` in `eth-lc/`) check this crate against the specs and recorded chains.
+
+Conformance at consensus-specs `v1.7.0-beta.4` (`just spec-tests`):
+
+- `sync`: all 33 minimal-preset cases from Capella through Gloas (129 steps;
+  the pin ships sync vectors for the minimal preset only). The test-only spec store
+  passes every step. The strict store runs on every case, Gloas bootstraps
+  included: 56 accepted steps, each equal to the spec store (finalized header,
+  both committee roots, execution anchor); 10 accept-rule refusals, each
+  justified by an independent check; 15 steps after the spec force updates
+  of the 5 `light_client_sync` cases, checked against the strict model.
+  Gloas anchors use execution preimages that the test derives (from payload
+  headers in the vectors, or from the genesis payload of the pyspec test
+  helper) and checks by Keccak-256.
+- `single_merkle_proof`: 52 proofs; every leaf index equals the core gindex.
+- ethereum/tests `TrieTests` (`just eth-tests`): 5 files.
+
+Recorded data, in the workspace's `vectors/` (`../vectors/`):
+
+- `vectors/mainnet/`: chain-dir for periods 1902 to 1905, a finality update,
+  claim evidence, a checkpoint, the Beacon API config and genesis.
+- `vectors/sepolia/`: chain-dir for periods 1376 to 1380 across the Gloas fork
+  (epoch 353,024, the first slot of period 1379) with the RLP execution header
+  of every finalized header, a Gloas checkpoint, the Beacon API config and
+  genesis. `eth-lc-host/tests/sepolia.rs` replays it with real BLS, and replays its Fulu
+  objects again after the Gloas upgrade (`fork.md`) to the same stores.
+- `vectors/hoodi/`: the Beacon API config and genesis (Gloas unscheduled).
+
 ## Features
 
 | Feature | Use |
