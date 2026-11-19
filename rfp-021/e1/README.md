@@ -7,6 +7,23 @@ If yes, what does the chain charge, and what does the submitter pay in proving?
 Answer so far: **yes**. The sequencer charges a flat private-transaction fee plus a
 small public part, whatever the private part computed. Details and gaps below.
 
+## Quick start
+
+Prerequisites: Rust (rustup), `just`, RISC Zero via `rzup` (`rzup install rust`, `rzup install cpp`, `r0vm` 3.0.x).
+
+```console
+cd rfp-021/e1
+just            # list recipes
+just e1a        # dev mode, about 1 min after the first LEZ build
+just e1b 1      # dev mode, real mainnet update step 1 (steps 0 to 3)
+just e1c        # dev mode, block fee path and racing copy
+just e1a-prove  # real proof, about 15 min CPU
+just e1b-prove 1
+just e1c-prove  # real proofs with a small private burn (fee is flat in it)
+```
+
+Everything builds under `.work/` (ignored).
+
 ## The mechanism under test
 
 ```mermaid
@@ -75,23 +92,6 @@ Public-path figures come from Proposal #224's published measurements, not from t
 | Remote proving (Bonsai, Boundless) | Lets operators without proving hardware submit. A prover is liveness-only: it cannot forge an update. | Split the proof. The heavy program proof (about 874 s, public inputs only) goes remote. The privacy-circuit proof (about 233 s, needs the submitter's private keys) stays local. LEZ proves both through one `default_prover()`, so the split needs a small LEZ change or a daemon-side path. Open checks: Bonsai availability, and whether Boundless receipts work as circuit assumptions. Fallback: a throwaway fee-only private account. Planned as E1d (needs an API key). |
 | Lowest-spec machine | P.4 asks for the declared minimum. | Repeat `e1b-prove` on a 16 GB machine. |
 | Testnet 0.4 | Delivery target; not released (end of November per roadmap). | Re-run on release. |
-
-## Reproduce
-
-Prerequisites: Rust (rustup), `just`, RISC Zero via `rzup` (`rzup install rust`, `rzup install cpp`, `r0vm` 3.0.x).
-
-```console
-cd rfp-021/e1
-just            # list recipes
-just e1a        # dev mode, about 1 min after the first LEZ build
-just e1b 1      # dev mode, real mainnet update step 1 (steps 0 to 3)
-just e1c        # dev mode, block fee path and racing copy
-just e1a-prove  # real proof, about 15 min CPU
-just e1b-prove 1
-just e1c-prove  # real proofs with a small private burn (fee is flat in it)
-```
-
-Everything builds under `.work/` (ignored).
 
 ## Layout
 
