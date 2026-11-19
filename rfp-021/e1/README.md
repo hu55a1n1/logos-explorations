@@ -91,7 +91,7 @@ just e1b-prove 1
 just e1c-prove  # real proofs with a small private burn (fee is flat in it)
 ```
 
-Logs land in `results/`. Everything else builds under `.work/` (ignored).
+Everything builds under `.work/` (ignored).
 
 ## Layout
 
@@ -102,7 +102,6 @@ Logs land in `results/`. Everything else builds under `.work/` (ignored).
 | `e1b-guest/` | E1b guest: `eth-lc-core` as a LEZ actor, accelerated `blst` |
 | `e1b-input/` | E1b inputs from the recorded mainnet chain-dir (`../../eth-lc/vectors/mainnet`) |
 | `e1b-pack/` | packs the guest ELF with RISC Zero's v1compat kernel (the form LEZ loads) |
-| `results/` | logs of the runs above |
 
 ## Build notes
 

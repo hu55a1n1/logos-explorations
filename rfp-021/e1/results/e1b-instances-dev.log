@@ -1,3 +1,0 @@
-E1B two instances: each update advances only its instance; A's input on B refused
-test state::tests::lc_spike::e1b_two_instances ... ok
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 305 filtered out; finished in 1.19s

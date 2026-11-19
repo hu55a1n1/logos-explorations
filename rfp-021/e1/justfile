@@ -8,7 +8,6 @@ work := here / ".work"
 lez := work / "lez"
 lez_repo := "https://github.com/logos-blockchain/logos-execution-zone.git"
 lez_tag := "v0.4.0-rc1"
-results := here / "results"
 e1b := work / "e1b"
 lee_test := "cargo test -p lee --release --lib"
 # chain_state's tests need `test-utils`, which LEZ refuses without debug assertions.
@@ -32,15 +31,13 @@ lez:
 
 # E1a, dev mode: mechanism, refusals, metered public cycles
 e1a: lez
-    mkdir -p {{results}}
     cd {{lez}} && RISC0_DEV_MODE=1 {{lee_test}} lc_spike -- --nocapture --test-threads 1 2>&1 \
-      | grep -E '^E1A|^test |test result' | tee {{results}}/e1a-dev.log
+      | grep -E '^E1A|^test |test result'
 
 # E1a, real proof of a 12.6M-cycle private update (CPU, via r0vm)
 e1a-prove: lez
-    mkdir -p {{results}}
     cd {{lez}} && /usr/bin/time -l env RISC0_DEV_MODE=0 {{lee_test}} e1a_proven_update_advances -- --nocapture 2>&1 \
-      | grep -E '^E1A|^test |test result|maximum resident|real' | tee {{results}}/e1a-prove.log
+      | grep -E '^E1A|^test |test result|maximum resident|real'
 
 # E1b: build guest inputs from the recorded mainnet chain-dir (eth-lc/vectors/mainnet)
 e1b-inputs:
@@ -69,10 +66,9 @@ e1b-elf:
 
 # E1b, dev mode: real mainnet update `step` settles; private and public cycles
 e1b step="1": lez e1b-inputs e1b-elf
-    mkdir -p {{results}}
     cd {{lez}} && E1B_ELF={{e1b}}/e1b_lc.bin E1B_INPUT={{e1b}}/step-{{step}}.bin E1B_STORE={{e1b}}/store-{{step}}.bin \
       RISC0_DEV_MODE=1 {{lee_test}} e1b_real_update -- --ignored --nocapture 2>&1 \
-      | grep -E '^E1B|^test |test result|panicked' | tee {{results}}/e1b-dev-step{{step}}.log
+      | grep -E '^E1B|^test |test result|panicked'
 
 # E1b, dev mode: the guest wire and the `Update` window on step 1, under the LEZ executor
 e1b-window: e1b-elf
@@ -83,7 +79,6 @@ e1b-window: e1b-elf
 window-test elf update_tag="0" attest_tag="": lez e1b-inputs
     #!/usr/bin/env bash
     set -euo pipefail
-    mkdir -p "{{results}}"
     attest=()
     if [ -n "{{attest_tag}}" ]; then
         attest=(E1B_ATTEST_TAG={{attest_tag}} E1B_ATTEST_STATE="{{e1b}}/attest-state.bin" E1B_ATTEST_CLAIM="{{e1b}}/attest-claim.bin")
@@ -95,30 +90,26 @@ window-test elf update_tag="0" attest_tag="": lez e1b-inputs
 
 # E1b, dev mode: two instances under one program; each update advances only its own instance
 e1b-instances: lez e1b-inputs e1b-elf
-    mkdir -p {{results}}
     cd {{lez}} && E1B_ELF={{e1b}}/e1b_lc.bin E1B_DIR={{e1b}} RISC0_DEV_MODE=1 \
       {{lee_test}} e1b_two_instances -- --ignored --nocapture 2>&1 \
-      | grep -E '^E1B|^test |test result' | tee {{results}}/e1b-instances-dev.log
+      | grep -E '^E1B|^test |test result'
 
 # E1b, real proof of real mainnet update `step` (CPU, via r0vm)
 e1b-prove step="1": lez e1b-inputs e1b-elf
-    mkdir -p {{results}}
     cd {{lez}} && /usr/bin/time -l env E1B_ELF={{e1b}}/e1b_lc.bin E1B_INPUT={{e1b}}/step-{{step}}.bin \
       E1B_STORE={{e1b}}/store-{{step}}.bin RISC0_DEV_MODE=0 {{lee_test}} e1b_real_update -- --ignored --nocapture 2>&1 \
-      | grep -E '^E1B|^test |test result|panicked|maximum resident|real' | tee {{results}}/e1b-prove-step{{step}}.log
+      | grep -E '^E1B|^test |test result|panicked|maximum resident|real'
 
 # E1c, dev mode: block fee path (gas actually charged) and a racing copy
 e1c: lez
-    mkdir -p {{results}}
     cd {{lez}} && RISC0_DEV_MODE=1 {{chain_test}} e1c_ -- --nocapture --test-threads 1 2>&1 \
-      | grep -E '^E1C|^test |test result|panicked' | tee {{results}}/e1c-dev.log
+      | grep -E '^E1C|^test |test result|panicked'
 
 # E1c with real proofs, so settlement verifies real receipts. The fee is flat in the private
 # work, so a small `burn` keeps proving short; pass burn=572700 for the 12.6M-cycle case.
 e1c-prove burn="1000": lez
-    mkdir -p {{results}}
     cd {{lez}} && E1_BURN={{burn}} RISC0_DEV_MODE=0 {{chain_test}} e1c_ -- --nocapture --test-threads 1 2>&1 \
-      | grep -E '^E1C|^test |test result|panicked' | tee {{results}}/e1c-prove.log
+      | grep -E '^E1C|^test |test result|panicked'
 
 # All dev-mode runs (minutes)
 all: e1a e1b e1b-window e1b-instances e1c

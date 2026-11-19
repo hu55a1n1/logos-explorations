@@ -1,5 +1,0 @@
-test apply::tests::e1c_a_racing_copy_reverts_and_is_charged ... 
-thread 'main' (1) panicked at lee/state_machine/test_methods/guest/src/bin/lc_spike.rs:44:13:
-E1C racing copy reverted, charged base_fee=5470616 (the winner paid 5146992)
-test apply::tests::e1c_proven_update_settles_through_the_block_fee_path ... E1C settled gas_used_exec=419311 (verify 409764 + public 9547) gas_used_stor=224063 base_fee_paid=5146992 tx_bytes=232438 block_exec_share=4.19% block_stor_share=22.41%
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 98 filtered out; finished in 699.39s
