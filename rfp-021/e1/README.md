@@ -55,13 +55,13 @@ The program pins the mainnet preset and takes the chain identity from `Init`, so
 | Storage gas per update | update material, about 52 KB | 224,063 (the receipt) |
 | Base fee at floor prices | about 101M | about 5.1M (**about 20x less**) |
 | Job state across transactions | yes | none |
-| Submitter hardware | LEZ gas only | a prover: **1,107 s, 13.1 GB** on a 16-core laptop CPU for a real update (E1b) |
+| Submitter hardware | LEZ gas only | a prover: **1,107 s, 13.1 GB** on a 16-core laptop CPU, or **30.2 s** on an RTX 4090, for a real update (E1b) |
 
 Public-path figures come from Proposal #224's published measurements, not from this experiment.
 
 ### Findings worth keeping
 
-1. Proving cost splits into a fixed part (about 233 s for any private transaction on this CPU) and the update itself (about 874 s more for the E1b update, 14.1M cycles). GPU proving should cut both by an order of magnitude (Tessera reports about 30x on an NVIDIA L4), which is not yet measured here.
+1. Proving cost splits into a fixed part (about 233 s for any private transaction on this CPU) and the update itself (about 874 s more for the E1b update, 14.1M cycles). On an RTX 4090 the same E1b update proves in **30.2 s** (30.3 s on a cold run), about 37x the laptop CPU. Host RSS was 758 MB. Tessera's about 30x was a different program on an L4, not this update.
 2. A canonical sender publishes the submitter's private account ID in the boundary message. Blind it (the test does).
 3. A losing racer pays its whole reserve. The update daemon must re-check the instance immediately before submitting (R.9) and keep its reserve tight.
 4. LEZ refuses `test-utils` in release builds without debug assertions. `chain_state` tests run with `CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true`.
@@ -71,7 +71,7 @@ Public-path figures come from Proposal #224's published measurements, not from t
 | Gap | Why it matters | How to close it |
 |---|---|---|
 | **Run on a standalone sequencer node** | Settlement code is covered (`settle_transaction`, the code the sequencer runs). Untested: RPC submission, mempool admission, deployment through the program loader, the node's rules on which public accounts a private transaction may touch. | Needs a Bedrock node. LEZ's resolver found **no prebuilt binary** for the pinned revision and the source build **failed to link** here (Rust 1.99, `rust-lld`). Next try: `bedrock/tools/resolve_bedrock_node_in_docker.sh`, then an integration test modelled on `integration_tests/tests/async_payouts.rs`. |
-| GPU proving time | Sets realistic operator cost and update latency. | Metal needs Xcode + Metal toolchain (only Command Line Tools here). Or run on a CUDA box. |
+| GPU proving time | Sets realistic operator cost and update latency. | Measured: E1b step 1, **30.2 s** on an RTX 4090 (24 GB, CUDA 12.4, `r0vm` 3.0.6 built with `cuda`). |
 | Remote proving (Bonsai, Boundless) | Lets operators without proving hardware submit. A prover is liveness-only: it cannot forge an update. | Split the proof. The heavy program proof (about 874 s, public inputs only) goes remote. The privacy-circuit proof (about 233 s, needs the submitter's private keys) stays local. LEZ proves both through one `default_prover()`, so the split needs a small LEZ change or a daemon-side path. Open checks: Bonsai availability, and whether Boundless receipts work as circuit assumptions. Fallback: a throwaway fee-only private account. Planned as E1d (needs an API key). |
 | Lowest-spec machine | P.4 asks for the declared minimum. | Repeat `e1b-prove` on a 16 GB machine. |
 | Testnet 0.4 | Delivery target; not released (end of November per roadmap). | Re-run on release. |
