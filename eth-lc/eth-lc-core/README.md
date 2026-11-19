@@ -148,7 +148,9 @@ Notes:
   then refuses updates on a stale instance. `Attest` leaves its window unbounded, so a
   stalled instance keeps serving claims against the headers it recorded.
 - Execution block numbers can repeat at Gloas (two beacon slots can name the
-  same parent block). Key header records by beacon slot.
+  same parent block). The program keeps one header per execution block
+  number: `advance` refuses a later slot at the same number (`NoProgress`),
+  and `hand_off` takes the committee such an update carries.
 - A Gloas-variant header needs the RLP execution header of its
   `execution_block_hash` in the input, at any slot. A Gloas-layout header at
   a pre-Gloas slot (the Gloas upgrade of an older header,
